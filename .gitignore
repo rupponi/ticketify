@@ -1,0 +1,7 @@
+# Client and server dependencies.
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# dotenv for sensitive data.
+server/.env
