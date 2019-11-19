@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+var request = require('request');
 require('dotenv').config();
 
 const port = process.env.PORT || 7000;
@@ -10,22 +11,70 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const SCOPES = 'playlist-read-private user-follow-read user-read-email';
 
+var accessToken = null, refreshToken = null;
+
 const app = express();
+var router = express.Router();
 
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 
-
+function loggedIn() {
+    return (accessToken != null && refreshToken != null);
+}
 
 app.get('/callback', (req, res) => {
     res.send({express: 'Hello Spotiboi!'});
+
+    let userCode = req.query.code || null,    
+        postOptions = {
+            uri: 'https://accounts.spotify.com/api/token',
+            method: 'POST',
+            headers: {
+                'Authorization' : `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
+                'Content-Type' : 'application/x-www-form-urlencoded'
+            },
+            body: `code=${userCode}&grant_type=authorization_code&redirect_uri=${REDIRECT_URI}`
+        }
+
+    request(postOptions, (error, response, body) => {
+
+        if (error) {
+            console.log('Error: Problem at POST request in initial authorization callback. Check /callback for issues.');
+            return;
+        }
+        else {
+            console.log(`Success! Response is ${response.statusCode}`);
+
+            JSON.parse(response.body, (key, value) => {
+                if (key == 'access_token') {
+                    accessToken = value;
+                }
+                if (key == 'refresh_token') {
+                    refreshToken = value;
+                }
+            });
+
+            /*
+            if (accessToken != null) {
+                console.log(`Access token acquired:\n ${accessToken}\n`);
+            }
+            if (refreshToken != null) {
+                console.log(`Refresh token acquired:\n ${refreshToken}\n`);
+            }*/
+
+            if (accessToken != null && refreshToken != null) {
+                console.log('Congrats! You successfully logged in!');
+            }
+        }
+
+        return;
+    });
 });
 
 app.get('/login', (req, res) => {
-    // We need authorization from the user first.
-
-    
+    // Authorization call for user and trigger callback.
     res.redirect(
         'https://accounts.spotify.com/authorize/?' +
         'response_type=code' +
@@ -36,11 +85,75 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/refresh-token', (req, res) => {
+    if (refreshToken == null) {
+        console.log('Error: Cannot acquire new access token. No refresh token present. Must authorize first.');
+        return;
+    }
+
     res.send({ express: 'Refreshing token!'});
+
+    let postOptions = {
+        uri: 'https://accounts.spotify.com/api/token',
+        method: 'POST',
+        headers: {
+            'Authorization' : `Basic ${Buffer.from(`${CLIENT_ID}:${CLIENT_SECRET}`).toString('base64')}`,
+            'Content-Type' : 'application/x-www-form-urlencoded'
+        },
+        body: `grant_type=refresh_token&refresh_token=${refreshToken}`
+    };
+
+    request(postOptions, (error, response, body) => {
+        if (error) {
+            console.log(`Error: Couldn't acquire new access token with refresh token.`);
+        }
+        else {
+            JSON.parse(response.body, (key, value) => {
+                if (key == 'access_token') {
+                    accessToken = value;
+                }
+            });
+            console.log(`Access token refreshed: ${accessToken}`);
+        }
+    });
+
+    return;
 });
 
 app.get('/status', (req, res) => {
     res.send({ express: `I'm still alive. I'm on port ${ port }.`});
+});
+
+
+app.get('/user', (req, res) => {
+    if (!loggedIn()) {
+        res.send('Sorry! You are not logged in. Please log in first.');
+    }
+    else {
+        let getOptions = {
+            uri: 'https://api.spotify.com/v1/me',
+            method: 'GET',
+            headers: {
+                'Authorization' : `Bearer ${accessToken}`
+            }
+        },
+        userPayload = `Welcome`;
+
+        request(getOptions, (error, response, body) => {
+            if (error) {
+                console.log(`Error: Couldn't acquire user data. Either invalid access token or un-authorized user.`);
+            }
+            else {
+                JSON.parse(response.body, (key, value) => {
+                    if (key == 'display_name') {
+                        userPayload = userPayload.concat(` ${value}!`);
+                    }
+                });
+
+                res.send(userPayload);
+            }
+        });
+    }
+    return;
 });
 
 
