@@ -1,22 +1,26 @@
 .App {
+  background: linear-gradient(#1F1805, #222);
   text-align: center;
+
+  height: 100vh;
+  width: 100vw;
 }
 
 .App-logo {
   height: 40vmin;
 }
 
-.App-header {
-  background-color: #222;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
 .App-link {
   color: #09d3ac;
+}
+
+#navbar {
+  position: fixed;
+
+  margin-left: 0rem;
+}
+
+#main-view {
+  height: 100vh;
+  width: 100vw;
 }

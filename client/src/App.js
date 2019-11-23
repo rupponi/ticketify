@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 
+import NavBar from './components/navbar/navbar';
+
 class App extends Component {
 
   constructor(props) {
@@ -19,9 +21,8 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          
-        </header>
+        <meta name="viewport" content = "width=device-width, initial-scale=1"/>
+        <NavBar id = "navbar"/>
       </div>
     );
   }
