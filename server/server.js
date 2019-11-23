@@ -5,7 +5,8 @@ require('dotenv').config();
 
 const port = process.env.PORT || 7000;
 let CLIENT_URI = process.env.CLIENT_URI || 'http://localhost:5000';
-let REDIRECT_URI = process.env.REDIRECT_URI || `http://localhost:${port}/callback`;
+let SERVER_URI = process.env.SERVER_URI || `http://localhost:${port}`
+let REDIRECT_URI = process.env.REDIRECT_URI || `${SERVER_URI}/callback`;
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
@@ -20,12 +21,30 @@ var router = express.Router();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended : true}));
 
+
+/*
+
+LOGIN FLOW: /login -> /callback -> logged in, authorized to use other endpoints;
+
+*/
+
+
 function loggedIn() {
     return (accessToken != null && refreshToken != null);
 }
 
+app.get('/login', (req, res) => {
+    // Authorization call for user and trigger callback.
+    res.redirect(
+        'https://accounts.spotify.com/authorize/?' +
+        'response_type=code' +
+        '&client_id=' + CLIENT_ID +
+        '&scope=' + SCOPES +
+        '&redirect_uri=' + REDIRECT_URI
+    );
+});
+
 app.get('/callback', (req, res) => {
-    res.send({express: 'Hello Spotiboi!'});
 
     let userCode = req.query.code || null,    
         postOptions = {
@@ -39,7 +58,6 @@ app.get('/callback', (req, res) => {
         }
 
     request(postOptions, (error, response, body) => {
-
         if (error) {
             console.log('Error: Problem at POST request in initial authorization callback. Check /callback for issues.');
             return;
@@ -66,22 +84,12 @@ app.get('/callback', (req, res) => {
 
             if (accessToken != null && refreshToken != null) {
                 console.log('Congrats! You successfully logged in!');
+                res.send('Login successful!');
             }
         }
 
         return;
     });
-});
-
-app.get('/login', (req, res) => {
-    // Authorization call for user and trigger callback.
-    res.redirect(
-        'https://accounts.spotify.com/authorize/?' +
-        'response_type=code' +
-        '&client_id=' + CLIENT_ID +
-        '&scope=' + SCOPES +
-        '&redirect_uri=' + REDIRECT_URI
-    );
 });
 
 app.get('/refresh-token', (req, res) => {
@@ -104,7 +112,7 @@ app.get('/refresh-token', (req, res) => {
 
     request(postOptions, (error, response, body) => {
         if (error) {
-            console.log(`Error: Couldn't acquire new access token with refresh token.`);
+            console.log(`Error: Issue at /refresh-token`);
         }
         else {
             JSON.parse(response.body, (key, value) => {
@@ -126,7 +134,7 @@ app.get('/status', (req, res) => {
 
 app.get('/user', (req, res) => {
     if (!loggedIn()) {
-        res.send('Sorry! You are not logged in. Please log in first.');
+        res.send('Error: User not found. Please login first.');
     }
     else {
         let getOptions = {
@@ -135,24 +143,56 @@ app.get('/user', (req, res) => {
             headers: {
                 'Authorization' : `Bearer ${accessToken}`
             }
-        },
-        userPayload = `Welcome`;
+        };
 
         request(getOptions, (error, response, body) => {
             if (error) {
-                console.log(`Error: Couldn't acquire user data. Either invalid access token or un-authorized user.`);
+                console.log(`Error: issue at /user`);
             }
             else {
+                let userPayload = `Welcome`;
                 JSON.parse(response.body, (key, value) => {
+                    /*
                     if (key == 'display_name') {
                         userPayload = userPayload.concat(` ${value}!`);
-                    }
+                    }*/
+                    userPayload = userPayload.concat(`${key}:${value} \r\n`);
                 });
 
                 res.send(userPayload);
             }
         });
     }
+    return;
+});
+
+app.get('/playlists', (req, res) => {
+    if (!loggedIn()) {
+        res.send('Error: User not found. Please login first.');
+    }
+    let getOptions = {
+        uri: 'https://api.spotify.com/v1/me/playlists',
+        method: 'GET',
+        headers: {
+            'Authorization' : `Bearer ${accessToken}`
+        }
+    };
+
+    request(getOptions, (error, response, body) => {
+        if (error) {
+            console.log('Error: Issue at /playlists.');
+        }
+        else {
+            let playlistPayload = ``;
+            JSON.parse(response.body, (key, value) => {
+                playlistPayload = playlistPayload.concat(`${key} : ${value}`);
+            });
+            res.send(playlistPayload);
+        }
+    });
+
+    
+
     return;
 });
 
