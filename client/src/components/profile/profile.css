@@ -1,0 +1,6 @@
+#profile-component {
+    height: 100vh;
+    width: calc(100vw - 5rem);
+
+    text-align: center;
+}

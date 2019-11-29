@@ -1,4 +1,5 @@
 .App {
+  display: table;
   background: linear-gradient(#1F1805, #222);
   text-align: center;
 
@@ -14,13 +15,25 @@
   color: #09d3ac;
 }
 
-#navbar {
+#navbar-container {
   position: fixed;
+  display: table-cell;
 
-  margin-left: 0rem;
+  height: 100vh;
+  width: 5rem;
+
+  z-index: 10000;
 }
 
-#main-view {
+#view-container {
+  display: table-cell;
+
   height: 100vh;
   width: 100vw;
+
+  margin-top: 0rem;
+
+  text-align: center;
+
+  z-index: 1000;
 }

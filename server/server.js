@@ -4,7 +4,7 @@ var request = require('request');
 require('dotenv').config();
 
 const port = process.env.PORT || 7000;
-let CLIENT_URI = process.env.CLIENT_URI || 'http://localhost:5000';
+let CLIENT_URI = process.env.CLIENT_URI || 'http://localhost:3000';
 let SERVER_URI = process.env.SERVER_URI || `http://localhost:${port}`
 let REDIRECT_URI = process.env.REDIRECT_URI || `${SERVER_URI}/callback`;
 
@@ -84,7 +84,8 @@ app.get('/callback', (req, res) => {
 
             if (accessToken != null && refreshToken != null) {
                 console.log('Congrats! You successfully logged in!');
-                res.send('Login successful!');
+                res.redirect(`${CLIENT_URI}?access_token=${accessToken}`);
+                console.log('Front-end provided with token. Can load dashboard now!');
             }
         }
 
@@ -150,13 +151,14 @@ app.get('/user', (req, res) => {
                 console.log(`Error: issue at /user`);
             }
             else {
-                let userPayload = `Welcome`;
+                let userPayload = '';
                 JSON.parse(response.body, (key, value) => {
-                    /*
+                    
                     if (key == 'display_name') {
-                        userPayload = userPayload.concat(` ${value}!`);
-                    }*/
-                    userPayload = userPayload.concat(`${key}:${value} \r\n`);
+                        userPayload = userPayload.concat(` ${value}`);
+                    }
+
+                    //userPayload = userPayload.concat(`${key}:${value} \r\n`);
                 });
 
                 res.send(userPayload);

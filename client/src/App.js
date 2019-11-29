@@ -1,29 +1,33 @@
 import React, { Component } from 'react';
+import Router from 'react-router';
 import './App.css';
 
-import NavBar from './components/navbar/navbar';
+import Dashboard from './components/dashboard/dashboard';
+import Login from './components/login/login';
 
 class App extends Component {
 
   constructor(props) {
     super(props);
 
-    this.state = ({
-      loading: true,
-      display_name: ''
-    });
+    this.state = {
+      accessToken : '',
+      user : null,
+      playlists : null
+    };
   }
 
   componentDidMount() {
-
+    if (window.location.href.indexOf('?') != -1) {
+      this.setState({accessToken: window.location.href.split('=')});
+    }
   }
 
   render() {
+    const {accessToken} = this.state;
+
     return (
-      <div className="App">
-        <meta name="viewport" content = "width=device-width, initial-scale=1"/>
-        <NavBar id = "navbar"/>
-      </div>
+      accessToken === '' ? <Login/> : <Dashboard/>
     );
   }
 }
