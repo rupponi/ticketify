@@ -14,7 +14,11 @@ const SCOPES = 'playlist-read-private user-follow-read user-read-email';
 
 var accessToken = null, refreshToken = null;
 
+var cors = require('cors');
+
 const app = express();
+app.use(cors());
+
 var router = express.Router();
 
 
@@ -86,6 +90,8 @@ app.get('/callback', (req, res) => {
                 console.log('Congrats! You successfully logged in!');
                 res.redirect(`${CLIENT_URI}?access_token=${accessToken}`);
                 console.log('Front-end provided with token. Can load dashboard now!');
+                let acquisitionCheck = new Date();
+                console.log(`Token acquired at: ${acquisitionCheck.getUTCMonth()+1}/${acquisitionCheck.getUTCDate()}/${acquisitionCheck.getUTCFullYear()} at ${acquisitionCheck.getUTCHours()}:${acquisitionCheck.getUTCMinutes()}:${acquisitionCheck.getUTCSeconds()}`);
             }
         }
 
@@ -151,17 +157,7 @@ app.get('/user', (req, res) => {
                 console.log(`Error: issue at /user`);
             }
             else {
-                let userPayload = '';
-                JSON.parse(response.body, (key, value) => {
-                    
-                    if (key == 'display_name') {
-                        userPayload = userPayload.concat(` ${value}`);
-                    }
-
-                    //userPayload = userPayload.concat(`${key}:${value} \r\n`);
-                });
-
-                res.send(userPayload);
+                res.json(response.body);
             }
         });
     }
@@ -185,11 +181,7 @@ app.get('/playlists', (req, res) => {
             console.log('Error: Issue at /playlists.');
         }
         else {
-            let playlistPayload = ``;
-            JSON.parse(response.body, (key, value) => {
-                playlistPayload = playlistPayload.concat(`${key} : ${value}`);
-            });
-            res.send(playlistPayload);
+            res.json(response.body);
         }
     });
 

@@ -10,7 +10,7 @@ class Dashboard extends Component {
     super(props);
 
     this.state = {
-      accessToken : ''
+      currentTab : 'profile'
     };
   }
 

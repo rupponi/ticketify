@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Router from 'react-router';
 import './App.css';
 
 import Dashboard from './components/dashboard/dashboard';
@@ -18,8 +17,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    if (window.location.href.indexOf('?') != -1) {
+    if (window.location.href.indexOf('?') !== -1) {
       this.setState({accessToken: window.location.href.split('=')});
+      
     }
   }
 
