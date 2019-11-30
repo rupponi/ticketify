@@ -53,6 +53,15 @@
 .navbar-button:hover {
     color: white;
 }
+.navbar-button:active {
+    -webkit-transition: all 0.1s ease;
+    -moz-transition: all 0.1s ease;
+    transition: all 0.1s ease;
+
+    -webkit-transform: scale(0.95);
+    -moz-transform: scale(0.95);
+    transform: scale(0.95);
+}
 
 .navbar-button-logo {
     float: left;
@@ -88,7 +97,8 @@
     color: white;
 
     font-family: 'Open Sans', 'sans-serif';
-    font-size: 1rem;
+    font-size: 0.9rem;
+    font-weight: lighter;
 
     margin-top: 2rem;
 }
