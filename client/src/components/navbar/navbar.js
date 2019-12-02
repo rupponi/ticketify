@@ -2,7 +2,33 @@ import React, { Component } from 'react';
 import './navbar.css';
 
 const BACKEND_URI = 'http://localhost:7000';
-var userPlaylists = null;
+
+
+async function getUser() {
+    return fetch(`${BACKEND_URI}/user`, {
+                method: 'GET',
+                headers: {
+                    'Accept' : 'application/json',
+                    'Content-Type' : 'application/json'
+                }
+            })
+            .then(response => response.json());
+}
+
+async function getPlaylists() {
+    return fetch(`${BACKEND_URI}/playlists`, {
+                method: 'GET',
+                headers: {
+                    'Accept' : 'application/json',
+                    'Content-Type' : 'application/json'
+                }
+            })
+            .then(response => response.json());
+}
+
+function getUserandPlaylists() {
+    return Promise.all([getUser(), getPlaylists()]);
+}
 
 
 class NavBar extends Component {
@@ -12,7 +38,7 @@ class NavBar extends Component {
         this.state = {
             profilePicSrc: 'img/generic-profile-icon.jpg',
             displayName: '',
-            playlists: ['No Playlists']
+            playlistNames: []
         };
     }
 
@@ -20,61 +46,26 @@ class NavBar extends Component {
         let loadState = {
             profilePicSrc: '',
             displayName: '',
-            playlists: ['No Playlists']
+            playlistNames: []
         };
 
-        fetch(`${BACKEND_URI}/user`, {
-            method: 'GET',
-            headers: {
-                'Accept' : 'application/json',
-                'Content-Type' : 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            let userData = JSON.parse(data);
-            // Use this if you want to see the JSON user data for debugging.
-            //alert(data);
-            loadState.profilePicSrc = userData.images[0].url;
-            loadState.displayName = userData.display_name;
-        })
-        .then(() => {
-            fetch(`${BACKEND_URI}/playlists`, {
-                method: 'GET',
-                headers: {
-                    'Accept' : 'application/json',
-                    'Content-Type' : 'application/json'
-                }
+        getUserandPlaylists()
+            .then(([user, playlists]) => {
+                let userData = JSON.parse(user), playlistData = JSON.parse(playlists);
+
+                loadState.profilePicSrc = userData.images[0].url;
+                loadState.displayName = userData.display_name;
+                loadState.playlistNames = playlistData.items.map(item => (
+                    item.name
+                ));
             })
-            .then(response => response.json())
-            .then(data => {
-                userPlaylists = JSON.parse(data);
-                loadState.playlists = userPlaylists.items;
-                alert(userPlaylists.items[0].name);
-            });
-        })
-        .finally(() => {
-            this.setState({
-                profilePicSrc : loadState.profilePicSrc,
-                displayName : loadState.displayName,
-                playlists : loadState.playlists
-            }); 
-        });
+            .then(() => {
+                this.setState(loadState);
+            })
     }
 
     render() {
-        const playlists = this.state.playlists;
-
-        /*
-
-        for (const currentPlaylist of playlists.entries()) {
-            playlistNames.push(
-                <div class = "navbar-button">
-                    <h1 class = "navbar-button-text unselectable">{currentPlaylist.name}</h1>
-                </div>
-            );
-        }
-        */
+        const playlistNames = this.state.playlistNames;
 
         return (
             <div id = "navbar-component">
@@ -83,13 +74,23 @@ class NavBar extends Component {
                     <h1 id = "navbar-title">Ticketify</h1>
                 </div>
                 <div class = "navbar-divider"/>
-                <div class = "navbar-button">
+                <div class = "navbar-profile-button">
                     <img class = "navbar-button-logo" src = {this.state.profilePicSrc} alt = "User Profile Thumbnail"/>
-                    <h1 class = "navbar-button-text unselectable">{this.state.displayName}</h1>
+                    <h1 class = "navbar-profile-button-text unselectable">{this.state.displayName}</h1>
                 </div>
                 <div class = "navbar-divider"/>
 
                 <h1 class = "navbar-section-title unselectable">PLAYLISTS</h1>
+
+                <div>
+                    {
+                        playlistNames.map(playlistName =>
+                            <div class = "navbar-button">
+                                <h1 class = "navbar-button-text unselectable">{playlistName}</h1>
+                            </div>
+                        )
+                    }
+                </div>
 
             </div>
         )

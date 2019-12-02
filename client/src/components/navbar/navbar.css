@@ -42,9 +42,56 @@
     padding-bottom: 5rem;
 }
 
-.navbar-button {
+.navbar-button-logo {
+    float: left;
+    
+    height: 2.5rem;
+    width: 2.5rem;
+
+    border-radius: 2rem;
+    margin-left: 1rem;
+}
+
+.navbar-profile-button {
     color: #aaa;
     height: 2.5rem;
+
+    font-family: 'Open Sans', 'sans-serif';
+    font-size: 1rem;
+
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-right: 2rem;
+}
+.navbar-profile-button:hover {
+    color: white;
+}
+.navbar-profile-button:active {
+    -webkit-transition: all 0.1s ease;
+    -moz-transition: all 0.1s ease;
+    transition: all 0.1s ease;
+
+    -webkit-transform: scale(0.95);
+    -moz-transform: scale(0.95);
+    transform: scale(0.95);
+}
+
+.navbar-profile-button-text {
+    float: left;
+
+    font-family: 'Open Sans', 'sans-serif';
+    font-size: 1rem;
+    font-weight: thin;
+
+    margin-top: 0.5rem;
+    margin-left: 1rem;
+}
+
+
+.navbar-button {
+    color: #aaa;
+    height: 1rem;
+    width: 13rem;
 
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
@@ -63,22 +110,17 @@
     transform: scale(0.95);
 }
 
-.navbar-button-logo {
-    float: left;
-    
-    height: 2.5rem;
-    width: 2.5rem;
-
-    border-radius: 2rem;
-    margin-left: 1rem;
-}
-
 .navbar-button-text {
-    float: left;
+    display: block;
 
     font-family: 'Open Sans', 'sans-serif';
-    font-size: 1rem;
+    font-size: 0.8rem;
     font-weight: thin;
+    text-align: left;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     margin-top: 0.5rem;
     margin-left: 1rem;
