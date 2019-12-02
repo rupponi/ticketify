@@ -127,7 +127,7 @@
 }
 
 .navbar-divider {
-    background: linear-gradient(white, black);
+    background: linear-gradient(#222, black);
 
     height: 0.1rem;
     width: 13rem;
