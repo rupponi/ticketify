@@ -10,7 +10,7 @@ class Dashboard extends Component {
     super(props);
 
     this.state = {
-      currentTab : 'profile'
+      view: 'profile'
     };
   }
 
@@ -26,7 +26,7 @@ class Dashboard extends Component {
           <NavBar id = "navbar"/>
         </div>
         <div id = "view-container">
-          <Profile/>
+          {this.state.view} == 'profile' ? <Profile/>
         </div>
       </div>
     );

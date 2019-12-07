@@ -61,7 +61,7 @@ class NavBar extends Component {
             })
             .then(() => {
                 this.setState(loadState);
-            })
+            });
     }
 
     render() {

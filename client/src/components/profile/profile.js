@@ -50,7 +50,7 @@ class Profile extends Component {
     render() {
         return(
             <div id = "profile-component">
-                <img id = "profile-picture" class = "unselectable" src = {this.state.profilePic}/>
+                <img id = "profile-picture" class = "unselectable" src = {this.state.profilePic} alt = "Profile Thumbnail"/>
                 <h1 id = "profile-name" class = "unselectable">{this.state.name}</h1>
 
                 <div id = "follow-section">
