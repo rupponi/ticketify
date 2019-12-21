@@ -1,36 +1,6 @@
 import React, { Component } from 'react';
 import './navbar.css';
 
-const BACKEND_URI = 'http://localhost:7000';
-
-
-async function getUser() {
-    return fetch(`${BACKEND_URI}/user`, {
-                method: 'GET',
-                headers: {
-                    'Accept' : 'application/json',
-                    'Content-Type' : 'application/json'
-                }
-            })
-            .then(response => response.json());
-}
-
-async function getPlaylists() {
-    return fetch(`${BACKEND_URI}/playlists`, {
-                method: 'GET',
-                headers: {
-                    'Accept' : 'application/json',
-                    'Content-Type' : 'application/json'
-                }
-            })
-            .then(response => response.json());
-}
-
-function getUserandPlaylists() {
-    return Promise.all([getUser(), getPlaylists()]);
-}
-
-
 class NavBar extends Component {
     constructor(props) {
         super(props);
@@ -42,30 +12,8 @@ class NavBar extends Component {
         };
     }
 
-    componentDidMount() {
-        let loadState = {
-            profilePicSrc: '',
-            displayName: '',
-            playlistNames: []
-        };
-
-        getUserandPlaylists()
-            .then(([user, playlists]) => {
-                let userData = JSON.parse(user), playlistData = JSON.parse(playlists);
-
-                loadState.profilePicSrc = userData.images[0].url;
-                loadState.displayName = userData.display_name;
-                loadState.playlistNames = playlistData.items.map(item => (
-                    item.name
-                ));
-            })
-            .then(() => {
-                this.setState(loadState);
-            });
-    }
-
     render() {
-        const playlistNames = this.state.playlistNames;
+        let playlistNames = this.props.state.playlistNames;
 
         return (
             <div id = "navbar-component">
@@ -75,8 +23,8 @@ class NavBar extends Component {
                 </div>
                 <div class = "navbar-divider"/>
                 <div class = "navbar-profile-button">
-                    <img class = "navbar-button-logo" src = {this.state.profilePicSrc} alt = "User Profile Thumbnail"/>
-                    <h1 class = "navbar-profile-button-text unselectable">{this.state.displayName}</h1>
+                    <img class = "navbar-button-logo" src = {this.props.state.profilePicSrc} alt = "User Profile Thumbnail"/>
+                    <h1 class = "navbar-profile-button-text unselectable">{this.props.state.displayName}</h1>
                 </div>
                 <div class = "navbar-divider"/>
 
